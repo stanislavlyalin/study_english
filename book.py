@@ -1,49 +1,33 @@
-import re
-from collections import Counter
-import numpy as np
+import os
+from word_utils import *
 
-# загрузка текста книги
-with open('harry_potter.txt', 'r') as file:
-  text = file.read()
 
-# разделение на отдельные слова
-words = text.lower().split()
+if __name__ == "__main__":
 
-# удаление не буквенно-цифровых символов каждого слова
-pattern = re.compile('[\W_]+')
-words = [pattern.sub('', item) for item in words]
+    os.system('cls')
 
-total_words = len(words)
-print('общее число слов в книге: ' + str(total_words))
+    known, unknown = load_dicts()
 
-# вычисление частоты встречания каждого слова
-words_counts = Counter(words)
+    words_counts, total_words = words_of_book('harry_potter.txt')
+    print('общее число слов в книге: ' + str(total_words))
 
-# сортировка по частоте встречания слов
-words_counts = sorted(words_counts.items(), key=lambda item: item[1], reverse=True)
+    words_coverage = initial_coverage(known, unknown, words_counts)
 
-# преобразование к массиву NumPy
-words_counts = np.array([[key, val] for key, val in words_counts])
+    for word in words_counts:
 
-words_coverage = 0
-
-for word in words_counts:
+        # обработаные ранее слова нужно пропустить
+        if word[0] in known or word[0] in unknown:
+            continue
   
-  ans = input('do you know: %s ' % word[0])
+        ans = input('do you know: %s ' % word[0])
 
-  known_dict = open('known_dict.txt', 'a+')
-  unknown_dict = open('unknown_dict.txt', 'a+')
+        if ans == 'y':
+            write_to_known(word[0])
+        elif ans == 'n':
+            write_to_unknown(word[0])
+        else:
+            break
 
-  if ans == 'y':
-    known_dict.write('%s\n' % word[0])
-  elif ans == 'n':
-    unknown_dict.write('%s\n' % word[0])
-  else:
-    break
-
-  words_coverage += int(word[1])
-
-  known_dict.close()
-  unknown_dict.close()
-
-  print('coverage = %.2f' % (100.0 * words_coverage / total_words))
+        # вывод процента покрытия книги известными словами
+        words_coverage += int(word[1])
+        print('coverage = %.2f' % (100.0 * words_coverage / total_words))
