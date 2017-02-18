@@ -19,7 +19,7 @@ if __name__ == "__main__":
         if word[0] in known or word[0] in unknown:
             continue
   
-        ans = input('do you know: %s ' % word[0])
+        ans = input('do you know: %s [%d] ' % (word[0], int(word[1])))
 
         if ans == 'y':
             write_to_known(word[0])

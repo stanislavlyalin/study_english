@@ -183,3 +183,5 @@ tiny
 guarding
 soon
 worse
+hurt
+spell
