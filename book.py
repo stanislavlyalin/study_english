@@ -10,6 +10,7 @@ if __name__ == "__main__":
 
     words_counts, total_words = words_of_book('harry_potter.txt')
     print('общее число слов в книге: ' + str(total_words))
+    print('уникальных слов: ' + str(len(words_counts)))
 
     words_coverage = initial_coverage(known, unknown, words_counts)
 
