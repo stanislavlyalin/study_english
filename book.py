@@ -1,9 +1,6 @@
 import re
-import goslate
 from collections import Counter
 import numpy as np
-
-gs = goslate.Goslate()
 
 # загрузка текста книги
 with open('harry_potter.txt', 'r') as file:
@@ -28,27 +25,25 @@ words_counts = sorted(words_counts.items(), key=lambda item: item[1], reverse=Tr
 # преобразование к массиву NumPy
 words_counts = np.array([[key, val] for key, val in words_counts])
 
-known_words = 0
-unknown_words = 0
 words_coverage = 0
 
-
-
 for word in words_counts:
-  ans = input('do you know ' + word[0] + ' ')
+  
+  ans = input('do you know: %s ' % word[0])
+
+  known_dict = open('known_dict.txt', 'a+')
+  unknown_dict = open('unknown_dict.txt', 'a+')
+
   if ans == 'y':
-    known_words += 1
-    words_coverage += int(word[1])
+    known_dict.write('%s\n' % word[0])
   elif ans == 'n':
-    unknown_words += 1
-    words_coverage += int(word[1])
-    # trans = gs.translate(word[0], 'ru')
-
-    # print('%s;%s' % (word[0], trans))
-
-    dict_file = open('dict.txt', 'a+')
-    dict_file.write('%s\n' % word[0])
-    dict_file.close()
+    unknown_dict.write('%s\n' % word[0])
   else:
     break
+
+  words_coverage += int(word[1])
+
+  known_dict.close()
+  unknown_dict.close()
+
   print('coverage = %.2f' % (100.0 * words_coverage / total_words))
