@@ -8,13 +8,27 @@ def load_dicts():
 
     with open('known_dict.txt') as f:
         content = f.readlines()
-    known_dict = [x.strip() for x in content]
+    known_dict = np.array([x.strip() for x in content])
 
     with open('unknown_dict.txt') as f:
         content = f.readlines()
-    unknown_dict = [x.strip() for x in content]
+    unknown_dict = np.array([x.strip() for x in content])
 
     return known_dict, unknown_dict
+
+
+# загрузка слов-переводов
+def load_translation():
+    with open('unknown_dict_translated.txt') as f:
+        content = f.readlines()
+    translation_dict = np.array([x.strip() for x in content])
+    return translation_dict
+
+
+def combine_dicts(unknown, translation):
+    a = unknown.reshape(-1, 1)
+    b = translation.reshape(-1, 1)
+    return np.hstack((a, b))
 
 
 # определение встречания слов в книге
