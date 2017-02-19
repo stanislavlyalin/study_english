@@ -30,10 +30,14 @@ if __name__ == "__main__":
             idx = np.where(lower == trans[:,0])[0]
             if len(idx) > 0:
                 t = trans[idx[0],1]
-                full_text.append('%s%s/%s/' % (spaces[i], word, t))
+                full_text.append('%s%s /%s/' % (spaces[i], word, t))
         else:
             full_text.append('%s%s' % (spaces[i], word))
 
         i += 1
     
-    write_to_file('ready.txt', ''.join(full_text))
+    text = ''.join(full_text)
+    text = re.sub(r'\n(?!\n)', ' ', text)
+    text = re.sub(r'\n', '\n\n', text)
+    write_to_file('ready.txt', ''.join(text))
+    # write_to_file('ready.txt', ''.join(full_text))
