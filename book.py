@@ -13,8 +13,11 @@ if __name__ == "__main__":
     print('уникальных слов: ' + str(len(words_counts)))
 
     words_coverage = initial_coverage(known, unknown, words_counts)
+    counter = 0
 
     for word in words_counts:
+
+        counter += 1
 
         # обработаные ранее слова нужно пропустить
         if word[0] in known or word[0] in unknown:
@@ -31,4 +34,4 @@ if __name__ == "__main__":
 
         # вывод процента покрытия книги известными словами
         words_coverage += int(word[1])
-        print('coverage = %.2f' % (100.0 * words_coverage / total_words))
+        print('progress %.2f, coverage %.2f' % (100.0 * counter / len(words_counts), 100.0 * words_coverage / total_words))

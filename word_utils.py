@@ -1,6 +1,8 @@
+# coding: utf-8
 import re
 import numpy as np
 from collections import Counter
+import codecs
 
 
 # загрузка словарей
@@ -19,13 +21,18 @@ def load_dicts():
 
 # загрузка слов-переводов
 def load_translation():
-    with open('unknown_dict_translated.txt') as f:
-        content = f.readlines()
+    # with open('unknown_dict_translated.txt') as f:
+    #     content = f.readlines()
+    file = codecs.open('unknown_dict_translated.txt', 'r', 'utf-8')
+    content = file.readlines()
+    file.close()
     translation_dict = np.array([x.strip() for x in content])
     return translation_dict
 
 
 def combine_dicts(unknown, translation):
+    print(unknown.shape)
+    print(translation.shape)
     a = unknown.reshape(-1, 1)
     b = translation.reshape(-1, 1)
     return np.hstack((a, b))
