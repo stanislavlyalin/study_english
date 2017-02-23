@@ -1,12 +1,73 @@
-# coding: utf-8
 import re
 import numpy as np
+import sqlite3
 from collections import Counter
-import codecs
+
+
+
+# загрузка словарей
+    # если файл не существует
+        # создание через try-except
+        # создать таблицы
+    # инициализация словарей пустыми массивами
+    # попытка
+        # коннект к БД
+        # извлечение данных в словари
+    # finally:
+        # закрыть соединение с БД
+    # вернуть словари
+
+
+
+# пополнение словарей: слова, их переводы
+    # если файл не существует
+        # создание через try-except
+        # создать таблицы
+    # цикл по каждому слову
+
+
+
+
+def create_db(db_name):
+    
+    db_name = 'dict.db'
+
+    # подключение к БД
+    # если БД не существует, она будет создана
+    try:
+        conn = sqlite3.connect(db_name)
+    except:
+        pass
+    finally:
+        conn.close()
+    
+    cursor = conn.cursor()
+
+    # создание таблицы знакомых слов
+    create_known_table_sql = '''
+create table if not exists known (
+    id integer primary key,
+    word text not null
+);'''
+    cursor.execute(create_known_table_sql)
+
+    # создание таблицы незнакомых слов
+    create_unknown_table_sql = '''
+create table if not exists unknown (
+    id integer primary key,
+    word text not null,
+    translate text not null
+);'''
+    cursor.execute(create_unknown_table_sql)
 
 
 # загрузка словарей
 def load_dicts():
+
+
+
+
+
 
     with open('known_dict.txt') as f:
         content = f.readlines()
@@ -21,18 +82,13 @@ def load_dicts():
 
 # загрузка слов-переводов
 def load_translation():
-    # with open('unknown_dict_translated.txt') as f:
-    #     content = f.readlines()
-    file = codecs.open('unknown_dict_translated.txt', 'r', 'utf-8')
-    content = file.readlines()
-    file.close()
+    with open('unknown_dict_translated.txt') as f:
+        content = f.readlines()
     translation_dict = np.array([x.strip() for x in content])
     return translation_dict
 
 
 def combine_dicts(unknown, translation):
-    print(unknown.shape)
-    print(translation.shape)
     a = unknown.reshape(-1, 1)
     b = translation.reshape(-1, 1)
     return np.hstack((a, b))
