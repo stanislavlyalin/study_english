@@ -1,97 +1,25 @@
 import re
 import numpy as np
-import sqlite3
+import os
+import urllib.request
+import json
 from collections import Counter
 
 
+# перевод массива английских слов на русский с помощью переводчика Яндекс
+def yandex_translate(words, key):
 
-# загрузка словарей
-    # если файл не существует
-        # создание через try-except
-        # создать таблицы
-    # инициализация словарей пустыми массивами
-    # попытка
-        # коннект к БД
-        # извлечение данных в словари
-    # finally:
-        # закрыть соединение с БД
-    # вернуть словари
+    words_to_translate = 100
+    translate = []
 
+    for i in range(0, len(words), words_to_translate):
+        sub_words = words[i:i+words_to_translate]
+        text_en = '. '.join(sub_words)
+        request = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=%s&text=%s&lang=en-ru' % (key, text_en)
+        ans = urllib.request.urlopen(request).read().decode('utf-8')
+        translate.append(json.loads(ans)['text'][0].lower().split('. '))
 
-
-# пополнение словарей: слова, их переводы
-    # если файл не существует
-        # создание через try-except
-        # создать таблицы
-    # цикл по каждому слову
-
-
-
-
-def create_db(db_name):
-    
-    db_name = 'dict.db'
-
-    # подключение к БД
-    # если БД не существует, она будет создана
-    try:
-        conn = sqlite3.connect(db_name)
-    except:
-        pass
-    finally:
-        conn.close()
-    
-    cursor = conn.cursor()
-
-    # создание таблицы знакомых слов
-    create_known_table_sql = '''
-create table if not exists known (
-    id integer primary key,
-    word text not null
-);'''
-    cursor.execute(create_known_table_sql)
-
-    # создание таблицы незнакомых слов
-    create_unknown_table_sql = '''
-create table if not exists unknown (
-    id integer primary key,
-    word text not null,
-    translate text not null
-);'''
-    cursor.execute(create_unknown_table_sql)
-
-
-# загрузка словарей
-def load_dicts():
-
-
-
-
-
-
-    with open('known_dict.txt') as f:
-        content = f.readlines()
-    known_dict = np.array([x.strip() for x in content])
-
-    with open('unknown_dict.txt') as f:
-        content = f.readlines()
-    unknown_dict = np.array([x.strip() for x in content])
-
-    return known_dict, unknown_dict
-
-
-# загрузка слов-переводов
-def load_translation():
-    with open('unknown_dict_translated.txt') as f:
-        content = f.readlines()
-    translation_dict = np.array([x.strip() for x in content])
-    return translation_dict
-
-
-def combine_dicts(unknown, translation):
-    a = unknown.reshape(-1, 1)
-    b = translation.reshape(-1, 1)
-    return np.hstack((a, b))
+    return np.array(translate).ravel()
 
 
 # определение встречания слов в книге
@@ -118,30 +46,3 @@ def words_of_book(book_filename):
     # преобразование к массиву NumPy
     return np.array([[key, val] for key, val in words_counts]), total_words
 
-
-def initial_coverage(known, unknown, words_counts):
-    counts = 0
-
-    for word in known:
-        idx = (np.where(words_counts[:,0] == word))[0][0]
-        counts += int(words_counts[idx, 1])
-
-    for word in unknown:
-        idx = (np.where(words_counts[:,0] == word))[0][0]
-        counts += int(words_counts[idx, 1])
-
-    return counts
-
-
-def write_to_file(fname, word):
-    file = open(fname, 'a+')
-    file.write('%s\n' % word)
-    file.close()
-
-
-def write_to_known(word):
-    write_to_file('known_dict.txt', word)
-
-
-def write_to_unknown(word):
-    write_to_file('unknown_dict.txt', word)
