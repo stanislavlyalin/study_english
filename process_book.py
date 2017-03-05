@@ -13,6 +13,8 @@ if __name__ == "__main__":
     input_book = sys.argv[1]
     output_book = sys.argv[2]
 
+    print('Обработка книги \"%s\"' % input_book)
+
     # извлечение списка слов из переданной книги
     words, total_words = words_of_book(input_book)
     print('общее число слов в книге: ' + str(total_words))
@@ -34,14 +36,21 @@ if __name__ == "__main__":
 
     # подготовка слов для Яндекс.переводчика
     key = 'trnsl.1.1.20170221T194012Z.9440c67d9bb5681d.b51b9261979862c60b232cd040264c5af034b018'
-    # translate = yandex_translate(words[:,0], key)
-    translate = yandex_translate(words_to_translate[:, 0], key)
+    print('Перевод %d слов...' % len(words_to_translate))
+
+    counter = 0
+    for word in words_to_translate:
+        translated_word = yandex_translate(word[0], key)
+
+        # пополнение словарей извлечёнными словами
+        db.fill_unknown_dict(word, translated_word)
+        print('\r%.2f%%' % (100.0 * counter / len(words)), end='')
+        counter += 1
+
+    print('\nПеревод завершён')
 
     # write_to_file('words.txt', '\n'.join(words_to_translate[:, 0]))
     # write_to_file('translate.txt', '\n'.join(translate))
-
-    # пополнение словарей извлечёнными словами
-    db.fill_unknown_dict(words_to_translate, translate)
 
     # подготовка книги (замена английских слов переводом)
     known, unknown = db.load_dicts()
@@ -75,3 +84,5 @@ if __name__ == "__main__":
     text = re.sub(r'\n', '\n\n', text)
 
     write_to_file(output_book, ''.join(full_text))
+    print('обработка книги завершена')
+    print('книга сохранена в файле %s' % output_book)

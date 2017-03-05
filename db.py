@@ -67,34 +67,34 @@ class DB:
 
         return known, unknown
 
-    def fill_unknown_dict(self, words, translate):
+    def fill_unknown_dict(self, en_word, trans):
 
         known, unknown = self.load_dicts()
 
-        # for word_item, trans in zip(words, translate):
-        for i in range(min(len(words), len(translate))):
+        word = en_word[0]
+        count = int(en_word[1])
 
-            word = words[i, 0]
-            count = int(words[i, 1])
-            trans = translate[i]
-            
-            # перевод, состоящий из латинских символов, отбрасывается
-            if re.match('^[a-z]+$', trans):
-                continue
-            # короткие слова и переводы (0 или 1 символ) отбрасываются
-            if len(word) < 2 or len(trans) < 2:
-                continue
+        # перевод, состоящий из латинских символов, отбрасывается
+        if re.match('^[a-z]+$', trans):
+            return
+        # короткие слова и переводы (0 или 1 символ) отбрасываются
+        if len(word) < 2 or len(trans) < 2:
+            return
 
-            # нужно проверять, что и в знакомых словах слова нет
-            if word not in known and word not in unknown:
-                insert_sql = '''
-                    insert into unknown(word, translate, count)
-                    values('%s', '%s', %d);''' % (word, trans, count)
-                self.cursor.execute(insert_sql)
-            else:
-                update_sql = '''
-                    update unknown set count=%d where word='%s';''' % (count, word)
-                self.cursor.execute(update_sql)
+        # слова, для которых переводчик выдал то же слово, отбрасываются
+        if word == trans:
+            return
+
+        # нужно проверять, что и в знакомых словах слова нет
+        if word not in known and word not in unknown:
+            insert_sql = '''
+                insert into unknown(word, translate, count)
+                values('%s', '%s', %d);''' % (word, trans, count)
+            self.cursor.execute(insert_sql)
+        else:
+            update_sql = '''
+                update unknown set count=%d where word='%s';''' % (count, word)
+            self.cursor.execute(update_sql)
 
         self.conn.commit()
 
