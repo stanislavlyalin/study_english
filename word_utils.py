@@ -13,13 +13,19 @@ def yandex_translate(words, key):
     translate = []
 
     for i in range(0, len(words), words_to_translate):
+    # for i in range(0, 500, words_to_translate):
         sub_words = words[i:i+words_to_translate]
         text_en = '. '.join(sub_words)
         request = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=%s&text=%s&lang=en-ru' % (key, text_en)
         ans = urllib.request.urlopen(request).read().decode('utf-8')
         translate.append(json.loads(ans)['text'][0].lower().split('. '))
 
-    return np.array(translate).ravel()
+    # a = np.array(translate)
+    # b = a.reshape((1, -1))
+    a = np.array([])
+    for s in translate:
+        a = np.append(a, s)
+    return a
 
 
 # определение встречания слов в книге
@@ -46,3 +52,8 @@ def words_of_book(book_filename):
     # преобразование к массиву NumPy
     return np.array([[key, val] for key, val in words_counts]), total_words
 
+
+def write_to_file(fname, word):
+    file = open(fname, 'a+')
+    file.write('%s\n' % word)
+    file.close()

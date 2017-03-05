@@ -10,8 +10,8 @@ class DB:
     def __init__(self):
 
         # абсолютный путь к БД
-        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        self.db_name = os.path.join(BASE_DIR, 'dict.db')
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        self.db_name = os.path.join(base_dir, 'dict.db')
 
         # создание БД, если не существует
         if not os.path.isfile(self.db_name):
@@ -23,7 +23,6 @@ class DB:
 
     def __del__(self):
         self.conn.close()
-
 
     def create_db(self):
 
@@ -57,7 +56,6 @@ class DB:
         finally:
             conn.close()
 
-
     def load_dicts(self):
 
         self.cursor.execute('select word from known')
@@ -65,10 +63,9 @@ class DB:
 
         self.cursor.execute('select * from unknown')
         unknown_full = np.array([list(item) for item in self.cursor.fetchall()])
-        unknown = unknown_full[:,0].ravel() if len(unknown_full) > 0 else np.array([])
+        unknown = unknown_full
 
         return known, unknown
-
 
     def fill_unknown_dict(self, words, translate):
 
@@ -87,7 +84,7 @@ class DB:
                 continue
 
             # нужно проверять, что и в знакомых словах слова нет
-            if not word in known and not word in unknown:
+            if word not in known and word not in unknown:
                 insert_sql = '''
                     insert into unknown(word, translate, count)
                     values('%s', '%s', %d);''' % (word, trans, count)
@@ -99,12 +96,11 @@ class DB:
 
         self.conn.commit()
 
-
     def write_to_known(self, word):
 
         known, unknown = self.load_dicts()
 
-        if not word in known:
+        if word not in known:
             insert_sql = '''insert into known (word) values('%s');''' % word
             self.cursor.execute(insert_sql)
 
