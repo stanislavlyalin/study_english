@@ -61,7 +61,7 @@ class DB:
         self.cursor.execute('select word from known')
         known = np.array(self.cursor.fetchall()).ravel()
 
-        self.cursor.execute('select * from unknown')
+        self.cursor.execute('select * from unknown order by count desc')
         unknown_full = np.array([list(item) for item in self.cursor.fetchall()])
         unknown = unknown_full
 
@@ -71,10 +71,12 @@ class DB:
 
         known, unknown = self.load_dicts()
 
-        for word_item, trans in zip(words, translate):
+        # for word_item, trans in zip(words, translate):
+        for i in range(min(len(words), len(translate))):
 
-            word = word_item[0]
-            count = int(word_item[1])
+            word = words[i, 0]
+            count = int(words[i, 1])
+            trans = translate[i]
             
             # перевод, состоящий из латинских символов, отбрасывается
             if re.match('^[a-z]+$', trans):

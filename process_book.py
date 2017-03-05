@@ -19,15 +19,29 @@ if __name__ == "__main__":
     print('уникальных слов: ' + str(len(words)))
 
     # TODO: переводить нужно только те слова, которых нет в словарях знакомых/незнакомых слов
+    db = DB()
+    known, unknown = db.load_dicts()
+    words_to_translate = []
+    for word in words:
+        if word[0] not in known and word[0] not in unknown:
+            words_to_translate.append(word)
+    words_to_translate = np.array(words_to_translate)
+
+    # это только для отладки
+    # words_to_translate = words_to_translate[:100]
+
+    print('новых слов для перевода: %d' % len(words_to_translate))
 
     # подготовка слов для Яндекс.переводчика
     key = 'trnsl.1.1.20170221T194012Z.9440c67d9bb5681d.b51b9261979862c60b232cd040264c5af034b018'
-    translate = yandex_translate(words[:,0], key)
-    # translate = yandex_translate(words[:100,0], key)
+    # translate = yandex_translate(words[:,0], key)
+    translate = yandex_translate(words_to_translate[:, 0], key)
+
+    # write_to_file('words.txt', '\n'.join(words_to_translate[:, 0]))
+    # write_to_file('translate.txt', '\n'.join(translate))
 
     # пополнение словарей извлечёнными словами
-    db = DB()
-    db.fill_unknown_dict(words, translate)
+    db.fill_unknown_dict(words_to_translate, translate)
 
     # подготовка книги (замена английских слов переводом)
     known, unknown = db.load_dicts()
@@ -50,7 +64,7 @@ if __name__ == "__main__":
             idx = np.where(lower == unknown[:, 0])[0]
             if len(idx) > 0:
                 t = unknown[idx[0], 1]
-                full_text.append('%s%s /%s/' % (spaces[i], word, t))
+                full_text.append('%s%s [%s]' % (spaces[i], word, t))
         else:
             full_text.append('%s%s' % (spaces[i], word))
 

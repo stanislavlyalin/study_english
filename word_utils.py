@@ -9,23 +9,21 @@ from collections import Counter
 # перевод массива английских слов на русский с помощью переводчика Яндекс
 def yandex_translate(words, key):
 
-    words_to_translate = 100
+    print('Перевод %d слов...' % len(words))
+
     translate = []
-
-    for i in range(0, len(words), words_to_translate):
-    # for i in range(0, 500, words_to_translate):
-        sub_words = words[i:i+words_to_translate]
-        text_en = '. '.join(sub_words)
-        request = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=%s&text=%s&lang=en-ru' % (key, text_en)
+    counter = 0
+    for word in words:
+        request = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=%s&text=%s&lang=en-ru' % (key, word)
         ans = urllib.request.urlopen(request).read().decode('utf-8')
-        translate.append(json.loads(ans)['text'][0].lower().split('. '))
+        # translate.append(json.loads(ans)['text'][0].lower().split('. '))
+        translate.append(json.loads(ans)['text'][0].lower())
 
-    # a = np.array(translate)
-    # b = a.reshape((1, -1))
-    a = np.array([])
-    for s in translate:
-        a = np.append(a, s)
-    return a
+        print('\r%.2f%%' % (100.0 * counter / len(words)), end='')
+        counter += 1
+
+    print('\nПеревод завершён')
+    return np.array(translate)
 
 
 # определение встречания слов в книге
