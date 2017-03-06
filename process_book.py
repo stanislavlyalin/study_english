@@ -40,11 +40,13 @@ if __name__ == "__main__":
 
     counter = 0
     for word in words_to_translate:
-        translated_word = yandex_translate(word[0], key)
+        try:
+            translated_word = yandex_translate(word[0], key)
+            db.fill_unknown_dict(word, translated_word)
+        except:
+            pass
 
-        # пополнение словарей извлечёнными словами
-        db.fill_unknown_dict(word, translated_word)
-        print('\r%.2f%%' % (100.0 * counter / len(words)), end='')
+        print('\r%.2f%%' % (100.0 * counter / len(words_to_translate)), end='')
         counter += 1
 
     print('\nПеревод завершён')
@@ -83,6 +85,6 @@ if __name__ == "__main__":
     text = re.sub(r'\n(?!\n)', ' ', text)
     text = re.sub(r'\n', '\n\n', text)
 
-    write_to_file(output_book, ''.join(full_text))
+    write_to_file(output_book, text)
     print('обработка книги завершена')
     print('книга сохранена в файле %s' % output_book)
